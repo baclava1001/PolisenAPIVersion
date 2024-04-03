@@ -1,0 +1,53 @@
+﻿@page "/"
+@inject Data.Services services
+@using BlazorAPIExperimental.Data
+
+<PageTitle>Home</PageTitle>
+
+<div class="crime-list">
+    @if(crimeData is not null)
+    {
+        @foreach (var crime in crimeData)
+        {
+            <div class="crime-item">
+                <h4>@crime.summary</h4>
+                <p><strong>Date and Time:</strong>@FormatDateTime(crime.datetime)</p>
+                <p><strong>Location:</strong> @crime.location.name</p>
+            </div>
+        }
+    }
+</div>
+
+@code{
+    List<CrimeSummary> crimeData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        crimeData = await services.GetData();
+    }
+    private string FormatDateTime(string dateTimeString)
+    {
+        return DateTime.Parse(dateTimeString).ToString("yyyy-MM-dd HH:mm");
+    }
+}
+
+<style>
+
+.crime-item {
+    margin-bottom: 20px;
+    border: 3px solid #6f6f6f;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 10px 5px 5px #787878;
+    background-color: #e6efff;
+}
+
+    .crime-item h4 {
+        margin-bottom: 5px;
+    }
+
+    .crime-item p {
+        margin-bottom: 3px;
+    }
+
+</style>
