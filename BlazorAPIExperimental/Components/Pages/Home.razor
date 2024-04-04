@@ -1,18 +1,26 @@
 ﻿@page "/"
 @inject Data.Services services
+@using Microsoft.AspNetCore.Components.QuickGrid
 @using BlazorAPIExperimental.Data
 
 <PageTitle>Home</PageTitle>
 
 <div class="crime-list">
+    <form method="post" @onsubmit="@Submit" @formname="form">
+        <AntiforgeryToken/>
+        <input type="date" value="dateChosen"/>
+        <button type="submit">Test</button>
+    </form>
     @if(crimeData is not null)
     {
         @foreach (var crime in crimeData)
         {
             <div class="crime-item">
                 <h4>@crime.summary</h4>
+                <p><strong>Type: </strong>@crime.type</p>
                 <p><strong>Date and Time:</strong>@FormatDateTime(crime.datetime)</p>
                 <p><strong>Location:</strong> @crime.location.name</p>
+                <a href="@($"https://polisen.se{crime.url}")"><strong>Link to article</strong></a>
             </div>
         }
     }
@@ -20,6 +28,7 @@
 
 @code{
     List<CrimeSummary> crimeData;
+    DateTime dateChosen { get; set; } = DateTime.Now;
 
     protected override async Task OnInitializedAsync()
     {
@@ -27,7 +36,11 @@
     }
     private string FormatDateTime(string dateTimeString)
     {
-        return DateTime.Parse(dateTimeString).ToString("yyyy-MM-dd HH:mm");
+        return DateTime.Parse(dateTimeString).ToString("yyyy-MM-dd");
+    }
+    private async Task Submit()
+    {
+        await services.GetData(FormatDateTime(dateChosen.ToString()));
     }
 }
 

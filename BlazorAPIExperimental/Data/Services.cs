@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using Microsoft.AspNetCore.Identity;
+using System.Net.Http;
 
 namespace BlazorAPIExperimental.Data
 {
@@ -9,18 +10,34 @@ namespace BlazorAPIExperimental.Data
         {
             _httpClient = httpClient;
         }
-        public async Task<List<CrimeSummary>> GetData()
+        public async Task <List<CrimeSummary>> GetData(string date)
         {
             try
             {
-                var response = await _httpClient.GetAsync("?locationname=Umeå");
+                var response = await _httpClient.GetAsync($"?DateTime={date}");
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadFromJsonAsync<List<CrimeSummary>>();
             }
             catch(HttpRequestException ex)
             {
                 Console.WriteLine($"HTTP request failed: {ex.Message}");
-                return new List<CrimeSummary>();
+                List<CrimeSummary> crimeList = new List<CrimeSummary>();
+                return crimeList;
+            }
+        }
+        public async Task<List<CrimeSummary>> GetData()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync("");
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadFromJsonAsync<List<CrimeSummary>>();
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"HTTP request failed: {ex.Message}");
+                List<CrimeSummary> crimeList = new List<CrimeSummary>();
+                return crimeList;
             }
         }
     }
