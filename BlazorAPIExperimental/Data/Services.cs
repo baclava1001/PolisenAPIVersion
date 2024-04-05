@@ -10,7 +10,7 @@ namespace BlazorAPIExperimental.Data
         {
             _httpClient = httpClient;
         }
-        public async Task <List<CrimeSummary>> GetDataByDate(string date)
+        public async Task <List<CrimeSummary>> GetData(string date)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace BlazorAPIExperimental.Data
                 return crimeList;
             }
         }
-        public async Task<List<CrimeSummary>> GetAllData()
+        public async Task<List<CrimeSummary>> GetData()
         {
             try
             {
