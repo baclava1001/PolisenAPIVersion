@@ -1,16 +1,23 @@
 ﻿@page "/"
 @inject Data.Services services
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.AspNetCore.Components.Forms
 @using BlazorAPIExperimental.Data
 
 <PageTitle>Home</PageTitle>
 
-<div class="crime-list">
-    <form method="post" @onsubmit="@Submit" @formname="form">
-        <AntiforgeryToken/>
-        <input type="date" value="dateChosen"/>
-        <button type="submit">Test</button>
-    </form>
+<h2>Crime scanner</h2>
+<div class="crime-date">
+    <EditForm Model="DateChosen" OnSubmit="Submit" FormName="Pick-date">
+        <label>Choose crime date: </label>
+         <InputDate Type="InputDateType.Date" @bind-Value=DateChosen/>
+          <button type="submit">Find crimes</button>
+    </EditForm>
+</div>
+
+<hr />
+
+<div class="crime-list">    
     @if(crimeData is not null)
     {
         @foreach (var crime in crimeData)
@@ -27,20 +34,35 @@
 </div>
 
 @code{
-    List<CrimeSummary> crimeData;
-    DateTime dateChosen { get; set; } = DateTime.Now;
 
+    // Local variable to save list of crimes from API
+    public List<CrimeSummary> crimeData;
+
+    // Propertry to store user input from form
+    [SupplyParameterFromForm]
+    public DateTime DateChosen { get; set; } = DateTime.Now;
+
+    // When page loads
     protected override async Task OnInitializedAsync()
     {
-        crimeData = await services.GetData();
+        crimeData = await services.GetAllData();
     }
+
+
+    // When form is submitted
+    private async Task Submit(EditContext editContext)
+    {
+        if (editContext.Validate())
+        {
+            // Populate the list with data from chosen date
+            crimeData = await services.GetDataByDate(FormatDateTime(DateChosen.ToString()));
+        }
+    }
+
+    // Convert and format date to make it compatible with API
     private string FormatDateTime(string dateTimeString)
     {
         return DateTime.Parse(dateTimeString).ToString("yyyy-MM-dd");
-    }
-    private async Task Submit()
-    {
-        await services.GetData(FormatDateTime(dateChosen.ToString()));
     }
 }
 
